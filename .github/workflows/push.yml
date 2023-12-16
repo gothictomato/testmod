@@ -7,18 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Gradle Cache
+      uses: burrunan/gradle-cache-action@v1
+      with:
+        gradle-version: wrapper
     - name: Build
-      uses: burrunan/gradle-cache-action@v1
-      with:
-        arguments: build
-        gradle-version: wrapper
+      run: ./gradlew build
     - name: Check
-      uses: burrunan/gradle-cache-action@v1
-      with:
-        arguments: check
-        gradle-version: wrapper
+      run: ./gradlew check
     - name: Test
-      uses: burrunan/gradle-cache-action@v1
-      with:
-        arguments: test
-        gradle-version: wrapper
+      run: ./gradlew test
