@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.1
@@ -20,13 +21,12 @@ jobs:
         run: ./gradlew jar
       - name: Get Version
         id: get-version
-        run: echo ::set-output name=VERSION::$(./gradlew properties --no-daemon | grep "version:" | awk '{print $2}')
+        run: echo "VERSION=$(./gradlew properties --no-daemon | grep "version:" | awk '{print $2}')" >> $GITHUB_OUTPUT
       - name: Get JAR
         id: get-jar
         run: |
           JAR_PATH=$(ls build/libs/*.jar)
-          JAR_NAME=$(basename $JAR_PATH)
-          echo ::set-output name=JAR_NAME::$JAR_NAME
+          echo "JAR_NAME=$(basename $JAR_PATH)" >> $GITHUB_OUTPUT
       - name: Create Release
         id: create-release
         uses: actions/create-release@v1
