@@ -1,0 +1,19 @@
+name: Push
+
+on: push
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Gradle Cache
+      uses: burrunan/gradle-cache-action@v1
+      with:
+        gradle-version: wrapper
+    - name: Build
+      run: ./gradlew build
+    - name: Check
+      run: ./gradlew check
+    - name: Test
+      run: ./gradlew test
