@@ -1,0 +1,49 @@
+name: Release JAR
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - name: Build
+        run: ./gradlew build
+      - name: Check
+        run: ./gradlew check
+      - name: Test
+        run: ./gradlew test
+      - name: Package
+        run: ./gradlew jar
+      - name: Get Version
+        id: get-version
+        run: echo ::set-output name=VERSION::$(./gradlew properties --no-daemon | grep "version:" | awk '{print $2}')
+      - name: Get JAR
+        id: get-jar
+        run: |
+          JAR_PATH=$(ls build/libs/*.jar)
+          JAR_NAME=$(basename $JAR_PATH)
+          echo ::set-output name=JAR_NAME::$JAR_NAME
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get-version.outputs.VERSION }}
+          release_name: Release v${{ steps.get-version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+      - name: Upload Release
+        id: upload-release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }} 
+          asset_path: ./build/libs/${{ steps.get-jar.outputs.JAR_NAME }}
+          asset_name: ${{ steps.get-jar.outputs.JAR_NAME }}
+          asset_content_type: application/java-archive
