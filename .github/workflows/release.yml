@@ -1,4 +1,4 @@
-name: Gradle Build and Release
+name: Release JAR
 
 on:
   push:
@@ -12,12 +12,16 @@ jobs:
       - uses: actions/checkout@v4.1.1
       - name: Build
         run: ./gradlew build
+      - name: Check
+        run: ./gradlew check
+      - name: Test
+        run: ./gradlew test
       - name: Package
         run: ./gradlew jar
       - name: Get Version
         id: get-version
         run: echo ::set-output name=VERSION::$(./gradlew properties --no-daemon | grep "version:" | awk '{print $2}')
-      - name: Get Jar Name
+      - name: Get JAR
         id: get-jar
         run: |
           JAR_PATH=$(ls build/libs/*.jar)
@@ -33,7 +37,7 @@ jobs:
           release_name: Release v${{ steps.get-version.outputs.VERSION }}
           draft: false
           prerelease: false
-      - name: Upload Release Jar
+      - name: Upload Release
         id: upload-release
         uses: actions/upload-release-asset@v1
         env:
